@@ -4,20 +4,18 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
-# Initialize bot
+
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# Function to get daily horoscope
+
 def get_daily_horoscope(sign: str, day: str) -> dict:
-    """
-    Fetch daily horoscope for a given sign and day.
-    """
+  
     url = "https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily"
     params = {"sign": sign, "day": day}
     response = requests.get(url, params=params)
     return response.json()
 
-# /horoscope command handler
+
 @bot.message_handler(commands=['horoscope'])
 def sign_handler(message):
     text = (
@@ -29,7 +27,6 @@ def sign_handler(message):
     sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
     bot.register_next_step_handler(sent_msg, day_handler)
 
-# Ask for day
 def day_handler(message):
     sign = message.text.strip()
     text = (
@@ -39,7 +36,6 @@ def day_handler(message):
     sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
     bot.register_next_step_handler(sent_msg, fetch_horoscope, sign.capitalize())
 
-# Fetch horoscope and send
 def fetch_horoscope(message, sign):
     day = message.text.strip().upper()
     try:
@@ -57,6 +53,6 @@ def fetch_horoscope(message, sign):
     except Exception as e:
         bot.send_message(message.chat.id, f"❌ Error: {e}")
 
-# Run bot
+
 print("🤖 Horoscope Bot is running...")
 bot.polling(non_stop=True)
